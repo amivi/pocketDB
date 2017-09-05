@@ -7,8 +7,8 @@
 
 #include <stdint.h>
 
-#define MAXLIMIT 254
-typedef struct CELL *cellptr;
+#define MAXLIMIT 254    //maximum limit of character input
+typedef struct CELL *cellptr; //structure at line:21
 
 enum {
 
@@ -18,6 +18,9 @@ enum {
 
 };
 
+/*
+ * structure to hold the user input data
+ */
 typedef struct CELL {
 
     uint8_t dt;

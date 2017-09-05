@@ -7,9 +7,20 @@
 #include <stdio.h>
 #include <string.h>
 
+
+/*
+ * takes the user input for a node(one row) in per call to it;
+ * in CELL structure(input.h line:24) and
+ * returns the pointer to the first node of linked list
+ * containing user input
+ */
 cellptr row_input() {
 
+    //temporary variables for taking the user inputs and
+    //some required value calculation
     char col, dt[7], cellname[MAXLIMIT], data_val[MAXLIMIT];
+    //temporary pointer variable to the CELL structure which
+    //will hold the input data for a row/node
     cellptr first_cell = NULL;
 
     printf("Enter number of columns : ");
@@ -23,11 +34,17 @@ cellptr row_input() {
         scanf("%s", &dt);
         printf("Cell_Name : ");
         scanf("%s", cellname);
+
+        //strdup returns the char pointer to the string
+        //provided to it.
         new_cell->cell_name = strdup(cellname);
         new_cell->cell_name_len = strlen(cellname);
         printf("Data_Value : ");
         scanf("%s", data_val);
 
+        //checks for the data type of the cell data
+        //and to input data to corresponding type field
+        //in the union of CellData
         switch (dt[0]) {
             case 'I' :
                 new_cell->dt = INT;
@@ -49,12 +66,22 @@ cellptr row_input() {
 
         new_cell->val_len = strlen(data_val);
         new_cell->next_cell = NULL;
+
+        //value returned to the first_cell is the address of
+        //first node of the linked list data
         first_cell = linked_list(first_cell, new_cell);
     }
 
+    //pointer to the first node in the linked list
     return first_cell;
 }
 
+
+/*
+ * inserts a new_cell node in the linked list whose
+ * first node is first_cell and returns the pointer to the
+ * first node in the linked list after new node insertion
+ */
 cellptr linked_list(cellptr first_cell, cellptr new_cell) {
 
     cellptr temp = first_cell;
@@ -72,12 +99,20 @@ cellptr linked_list(cellptr first_cell, cellptr new_cell) {
     return first_cell;
 }
 
+/*
+ * returns the length of data contained in a linked list
+ * this length does not includes padding, white spaces or
+ * null characters
+ */
 unsigned int row_length(cellptr first_cell) {
 
     unsigned int row_len = 0;
     cellptr rootc = first_cell;
 
     while (rootc) {
+        //row_len will at-least be 3 in order to
+        //store 1B data-type, 1B cell-name-len &
+        //1B for cell-data-len
         row_len += 3;
         row_len += rootc->cell_name_len + rootc->val_len;
         rootc = rootc->next_cell;
@@ -86,48 +121,63 @@ unsigned int row_length(cellptr first_cell) {
     return row_len;
 }
 
+
+/*
+ * converts and compacts the data of linked-list
+ * of CELL structures into a byte array
+ * of data of length as returned by row_length;
+ * and returns the byte array
+ */
 unsigned char *data_compact(cellptr first_cell) {
 
+    //pointer to the first cell in the linked list
     cellptr rootc = first_cell;
     unsigned int data_len, i;
 
+    //conditional to check if linked list has at-least 1 node
+    //if true then gets the length of data linked list contains
     if (rootc)
         data_len = row_length(rootc);
     else {
         printf("\aerror : data_compact : can't compact a empty cell !");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     char *data_ptr = malloc(data_len);
 
-    if (data_ptr && rootc) {
-        i = 0;
-        char *copy = data_ptr;
-        while (rootc && i < data_len) {
-            *(copy + i++) = rootc->dt;
-            *(copy + i++) = rootc->cell_name_len;
-            strcpy((copy + i), rootc->cell_name);  //////////////////////////////
-            i += rootc->cell_name_len;
-            *(copy + i++) = rootc->val_len;
-            switch (rootc->dt) {
-                case INT:
-                    sprintf((copy + i), "%d", rootc->val.ival);
-                    break;
-                case FLOAT:
-                    sprintf((copy + i), "%f", (rootc->val.fval));
-                    break;
-                case STRING:
-                    strcpy((copy + i), rootc->val.sval);
-                    break;
-                default:
-                    printf("\aunknown error : data_compact !");
-            }
-            i += rootc->val_len;
-            rootc = rootc->next_cell;
-        }
-    } else {
+    //conditional to check if data pointer is allocated
+    //a valid empty memory location
+    if (data_ptr == NULL) {
         printf("\aerror : data_compact : memory allocation failed !");
-        exit(-1);
+        exit(EXIT_FAILURE);
+    }
+
+    //iteration variable to store the length iterated
+    i = 0;
+
+    //until end of the linked list is reached
+    //and iteration var is smaller than data length
+    while (rootc && i < data_len) {
+        *(data_ptr + i++) = rootc->dt;
+        *(data_ptr + i++) = rootc->cell_name_len;
+        strcpy((data_ptr + i), rootc->cell_name);
+        i += rootc->cell_name_len;
+        *(data_ptr + i++) = rootc->val_len;
+        switch (rootc->dt) {
+            case INT:
+                sprintf((data_ptr + i), "%d", rootc->val.ival);
+                break;
+            case FLOAT:
+                sprintf((data_ptr + i), "%f", (rootc->val.fval));
+                break;
+            case STRING:
+                strcpy((data_ptr + i), rootc->val.sval);
+                break;
+            default:
+                printf("\aunknown error : data_compact !");
+        }
+        i += rootc->val_len;
+        rootc = rootc->next_cell;
     }
 
     return data_ptr;

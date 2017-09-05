@@ -7,9 +7,12 @@
 
 #include "input.h"
 
-typedef unsigned char* byte_array;
+typedef unsigned char *byte_array;
 typedef struct Node *node;
 
+/*
+ * container structure for the tree node
+ */
 typedef struct Node {
 
     node left_child;
@@ -21,6 +24,9 @@ typedef struct Node {
 
 typedef struct TreeMap *treemap;
 
+/*
+ * container structure for a treemap
+ */
 typedef struct TreeMap {
 
     int size;
