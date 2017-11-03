@@ -16,31 +16,56 @@
  */
 cellptr row_input() {
 
+    //for the purpose of testing only
+    //make changes after that
+    char *cellnames[] = {"BRANCH", "NAME", "ROLL"};
+    char *branchval[] = {"OSS", "CCVT", "CSF"};
+    char *nameval[] = {"AJAY", "VIJAY", "MINAL"};
+    char *rollval[] = {"89", "80", "91"};
+    char *dtval[] = {"S", "S", "I"};
+    static int j;////////////
     //temporary variables for taking the user inputs and
     //some required value calculation
-    char col, dt[7], cellname[MAXLIMIT], data_val[MAXLIMIT];
+    int number_of_cols, i=0;
+    char dt[7], cellname[MAXLIMIT], data_val[MAXLIMIT];
     //temporary pointer variable to the CELL structure which
     //will hold the input data for a row/node
     cellptr first_cell = NULL;
 
-    printf("Enter number of columns : ");
-    scanf("%d", &col);
+    printf("\nEnter number of columns : ");
+    sscanf("3","%d", &number_of_cols);//////////
+    printf("%d", 3);
 
-    while (col-- > 0) {
+    while (i++ < number_of_cols) {
         cellptr new_cell = NULL;
         new_cell = malloc(sizeof(CellData));
-        printf("Supported data types : INT, FLOAT, STRING\n");
-        printf("Data_Type : ");
-        scanf("%s", &dt);
+        printf("\nColumn %d :::",i-1);
+        printf("\nSupported data types : INT(I), FLOAT(F), STRING(S)\n");
+        printf("DataType : ");
+        sscanf(dtval[i-1],"%s", dt); /////////////
+        printf("%s\n", dtval[i-1]);
         printf("Cell_Name : ");
-        scanf("%s", cellname);
+        sscanf(cellnames[i-1],"%s", cellname);////////////
+        printf("%s\n", cellnames[i-1]);
 
         //strdup returns the char pointer to the string
         //provided to it.
         new_cell->cell_name = strdup(cellname);
-        new_cell->cell_name_len = strlen(cellname);
+        new_cell->cell_name_len = (uint8_t) strlen(cellname);
         printf("Data_Value : ");
-        scanf("%s", data_val);
+        switch (i-1) {
+            case 0: sscanf(branchval[j%3], "%s", data_val);
+                printf("%s\n", branchval[j%3]);
+                break;
+            case 1: sscanf(nameval[j%3], "%s", data_val);
+                printf("%s\n", nameval[j%3]);
+                break;
+            case 2: sscanf(rollval[j%3], "%s", data_val);
+                printf("%s\n", rollval[j%3]);
+                break;
+            default: printf("\n\aerror.");
+                exit(EXIT_FAILURE);
+        }
 
         //checks for the data type of the cell data
         //and to input data to corresponding type field
@@ -56,7 +81,7 @@ cellptr row_input() {
                 break;
             case 'S' :
                 new_cell->dt = STRING;
-                new_cell->val.sval = data_val;
+                new_cell->val.sval = strdup(data_val);
                 break;
 
             default:
@@ -64,14 +89,16 @@ cellptr row_input() {
                 exit(EXIT_FAILURE);
         }
 
-        new_cell->val_len = strlen(data_val);
+        new_cell->val_len = (uint8_t) strlen(data_val);
         new_cell->next_cell = NULL;
 
-        //value returned to the first_cell is the address of
-        //first node of the linked list data
+        /*
+         * value returned to the first_cell is the address of
+         * first node of the linked list data
+         */
         first_cell = linked_list(first_cell, new_cell);
     }
-
+    ++j;
     //pointer to the first node in the linked list
     return first_cell;
 }
@@ -106,13 +133,14 @@ cellptr linked_list(cellptr first_cell, cellptr new_cell) {
  */
 unsigned int row_length(cellptr first_cell) {
 
-    unsigned int row_len = 0;
+    unsigned int row_len = 1;////////////////////////////////1
     cellptr rootc = first_cell;
 
     while (rootc) {
-        //row_len will at-least be 3 in order to
+        //row_len will at-least be 3 for each cell of
+        // a row in order to
         //store 1B data-type, 1B cell-name-len &
-        //1B for cell-data-len
+        //1B for cell-data-length
         row_len += 3;
         row_len += rootc->cell_name_len + rootc->val_len;
         rootc = rootc->next_cell;
@@ -132,7 +160,7 @@ unsigned char *data_compact(cellptr first_cell) {
 
     //pointer to the first cell in the linked list
     cellptr rootc = first_cell;
-    unsigned int data_len, i;
+    unsigned int data_len, i, cols = 0;
 
     //conditional to check if linked list has at-least 1 node
     //if true then gets the length of data linked list contains
@@ -153,7 +181,7 @@ unsigned char *data_compact(cellptr first_cell) {
     }
 
     //iteration variable to store the length iterated
-    i = 0;
+    i = 1;/////////////////////////////////////////////////////////////////2
 
     //until end of the linked list is reached
     //and iteration var is smaller than data length
@@ -177,8 +205,10 @@ unsigned char *data_compact(cellptr first_cell) {
                 printf("\aunknown error : data_compact !");
         }
         i += rootc->val_len;
+        ++cols;
         rootc = rootc->next_cell;
     }
+    *(data_ptr + 0) = (uint8_t) cols;
 
-    return data_ptr;
+    return (unsigned char*) data_ptr;
 }

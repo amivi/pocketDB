@@ -12,19 +12,28 @@
 
 
 int main() {
-    printf("Hello, World!\n");
 
+    printf("%25sPOCKET-DB\n%24s+---------+","","");
     treemap student = new_tree_map();
     cellptr root = NULL;
     char k[90];
-    int rows = 3;
+    int rows = 7;
+    char *key[] = {"15", "12", "11", "13", "17", "16", "18"};/////////////
     for(int i=0; i<rows; i++) {
+        printf("\n\nROW %d-->\n",i);
         printf("enter key: ");
-        scanf("%s",k);
+        sscanf(key[i],"%s",k);
+        printf("%s", k);
         root = row_input();
         student = tree_put(student, k, root);
     }
+
+    //printf("\n\nPlease enter a search key: ");
+    //scanf("%s",k);
+    tree_get(student, "16");
+    printf("\n::GETTING ALL KEY-VALUE(S) FROM 'student' DATA-STORE\n");
     tree_get_all(student->root);
-    printf("\asuccess!");
+    printf("\n\nsuccess!");
+
     return 0;
 }
