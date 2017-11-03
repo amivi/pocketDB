@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "treemap.h"
+#include "output.h"
 
 
 /*
@@ -42,7 +43,7 @@ treemap tree_put(treemap tree, char *key, cellptr row_data) {
 
     //new node adds a node with key-and the transformed value(byte array)
     //to the tree
-    if(tree->root = new_node(tree->root, key, value))
+    if((tree->root = new_node(tree->root, key, value)))
         ++tree->size;
 
     return tree;
@@ -66,11 +67,11 @@ node new_node(node root, char *key, byte_array value) {
         //strdup returns the char pointer to the string
         //provided to it.
         root->key = strdup(key);
-        root->value = strdup(value);
+        root->value = (byte_array) strdup((char*)value);
         root->left_child = NULL;
         root->right_child = NULL;
     } else if((cond=strcmp(key, root->key)) == 0)
-            root->value = strdup(value);
+            root->value = (byte_array) strdup((char*)value);
     else if(cond < 0)
         root->left_child = new_node(root->left_child, key, value);
     else
@@ -87,7 +88,61 @@ void tree_get_all(node root) {
 
     if(root!=NULL){
         tree_get_all(root->left_child);
-        printf("\n%s\t%s",root->key,root->value);
+        display_treemap_node(root->key, data_expand(root->value));
+        //printf("\nKEY\t%s\t%s",root->key,root->value);
         tree_get_all(root->right_child);
+    }
+}
+
+int tree_get(treemap tree, char *key) {
+
+    node tree_node = NULL;
+    cellptr first_cell = NULL;
+
+    if ((tree_node = get_node(tree->root, key))) {
+        first_cell = data_expand(tree_node->value);
+        display_treemap_node(key, first_cell);
+        return 1;
+    } else {
+        printf("Key : %s not in treemap", key);
+        return -1;
+    }
+}
+
+node get_node(node root, char *key){
+
+    if (root == NULL || (strcmp(key, root->key) == 0))
+        return root;
+
+    if (strcmp(key, root->key) < 0)
+        get_node(root->left_child, key);
+    else
+        get_node(root->right_child, key);
+}
+
+
+void display_treemap_node(char *key, cellptr first_cell) {
+
+    printf("\n\nKey : ");
+    printf("%-8s", key);
+    while (first_cell != NULL) {
+        printf("\nDataType\tCellName\tValue");
+        printf("\n%-12d",first_cell->dt);
+        printf("%-12s", first_cell->cell_name);
+        switch (first_cell->dt) {
+            case INT :
+                printf("%d", first_cell->val.ival);
+                break;
+            case FLOAT :
+                printf("%f", first_cell->val.fval);
+                break;
+            case STRING :
+                printf("%s", first_cell->val.sval);
+                break;
+            default:
+                printf("program error");
+        }
+
+        first_cell = first_cell->next_cell;
     }
 }

@@ -38,7 +38,9 @@ treemap new_tree_map();
 treemap tree_put(treemap tree, char *key, cellptr row_data);
 node new_node(node root, char *key, byte_array value);
 void tree_get_in_range(treemap tree, char *ikey, char *fkey);
-node tree_get(treemap tree, char *key);
+int tree_get(treemap root, char *key);
+node get_node(node root, char *key);
+void display_treemap_node(char *key, cellptr first_cell);
 void tree_get_all(node tree);
 
 #endif //POCKETDB_TREEMAP_H
