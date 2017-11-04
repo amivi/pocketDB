@@ -30,8 +30,11 @@ int main() {
 
     //printf("\n\nPlease enter a search key: ");
     //scanf("%s",k);
+    printf("\n\n::GETTING searched KEY-VALUE FROM 'student' DATA-STORE ->");
     tree_get(student, "16");
-    printf("\n::GETTING ALL KEY-VALUE(S) FROM 'student' DATA-STORE\n");
+    printf("\n\n::GETTING KEY-VALUE(S) FROM 'student' DATA-STORE in given range ->");
+    tree_get_in_range(student->root,"10","15");
+    printf("\n\n::GETTING ALL KEY-VALUE(S) FROM 'student' DATA-STORE ->");
     tree_get_all(student->root);
     printf("\n\nsuccess!");
 

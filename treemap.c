@@ -80,20 +80,33 @@ node new_node(node root, char *key, byte_array value) {
     return root;
 }
 
-//not ready for use yet
 /*
- * outputs all the key-value mappings of tree
+ * outputs all the key-value mappings from treemap.
  */
 void tree_get_all(node root) {
 
     if(root!=NULL){
         tree_get_all(root->left_child);
         display_treemap_node(root->key, data_expand(root->value));
-        //printf("\nKEY\t%s\t%s",root->key,root->value);
         tree_get_all(root->right_child);
     }
 }
 
+/*
+ * output all the key-value mappings from treemap within the specified range.
+ */
+void tree_get_in_range(node root, char *first_key, char *last_key) {
+
+    if(root!=NULL && (strcmp(root->key, first_key) >= 0) && (strcmp(root->key, last_key)<=0)){
+        tree_get_in_range(root->left_child, first_key, last_key);
+        display_treemap_node(root->key, data_expand(root->value));
+        tree_get_in_range(root->right_child, first_key, last_key);
+    }
+}
+
+/*
+ * searches for a key in treemap.
+ */
 int tree_get(treemap tree, char *key) {
 
     node tree_node = NULL;
@@ -109,6 +122,10 @@ int tree_get(treemap tree, char *key) {
     }
 }
 
+/*
+ * return the node containing the key from the treemap if it matches
+ * the search key or returns null otherwise.
+ */
 node get_node(node root, char *key){
 
     if (root == NULL || (strcmp(key, root->key) == 0))
@@ -120,7 +137,9 @@ node get_node(node root, char *key){
         get_node(root->right_child, key);
 }
 
-
+/*
+ * display the key-value(s).
+ */
 void display_treemap_node(char *key, cellptr first_cell) {
 
     printf("\n\nKey : ");
