@@ -1,0 +1,3 @@
+- This project is currently being developed in C programming language (only).
+- No external libraries should be used other than the standard C libraries.
+- All contributions all welcome.
