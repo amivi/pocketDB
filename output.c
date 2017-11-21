@@ -15,7 +15,7 @@ cellptr data_expand(byte_array val){
     char temp_array[255];
 
     data_len = val[0];
-    while(data_len-- > 0) {
+    while(i < val[0]) {///////
 
         new_cell = malloc(sizeof(CellData));
         if (new_cell == NULL) {

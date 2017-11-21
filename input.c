@@ -205,10 +205,10 @@ unsigned char *data_compact(cellptr first_cell) {
                 printf("\aunknown error : data_compact !");
         }
         i += rootc->val_len;
-        ++cols;
+        //++cols;
         rootc = rootc->next_cell;
     }
-    *(data_ptr + 0) = (uint8_t) cols;
+    *(data_ptr + 0) = (uint8_t) data_len;////////
 
     return (unsigned char*) data_ptr;
 }
