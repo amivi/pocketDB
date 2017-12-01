@@ -20,5 +20,8 @@
 int disk_level_push(treemap tree, char *name);
 void handle_push(FILE *fp,char *key, byte_array data, int size);
 void get_in_order(node root, int size, FILE *fp);
+int disk_level_get(char *fname, char *key);
+int disk_level_get_all(char *fname, char *flag_key);
+int disk_level_get_in_range(char *fname, char *first_key, char *last_key);
 
 #endif //POCKETDB_DISK_LEVEL_H
