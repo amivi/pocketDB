@@ -113,12 +113,13 @@ int tree_get(treemap tree, char *key) {
     cellptr first_cell = NULL;
 
     if ((tree_node = get_node(tree->root, key))) {
+        printf("\n\n:) key found !\n");/////////////////
         first_cell = data_expand(tree_node->value);
         display_treemap_node(key, first_cell);
-        return 1;
+        return EXIT_SUCCESS;
     } else {
-        printf("Key : %s not in treemap", key);
-        return -1;
+        printf("\n\n:( Key : %s not in treemap !\n", key);///////////////
+        return EXIT_FAILURE;
     }
 }
 

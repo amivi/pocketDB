@@ -21,8 +21,8 @@ cellptr row_input() {
     char *cellnames[] = {"BRANCH", "NAME", "ROLL"};
     char *branchval[] = {"OSS", "CCVT", "CSF"};
     char *nameval[] = {"AJAY", "VIJAY", "MINAL"};
-    char *rollval[] = {"89", "80", "91"};
-    char *dtval[] = {"S", "S", "I"};
+    char *rollval[] = {"89.9", "80.09", "91.99"};
+    char *dtval[] = {"S", "S", "F"};
     static int j;////////////
     //temporary variables for taking the user inputs and
     //some required value calculation
