@@ -11,8 +11,14 @@
 #include <stdio.h>
 
 void screen_initialize() {
+    int opt;
     printf("%60sPOCKET-DB\n%59s+---------+","","");
-    printf("\n\n| %-20s --> 1 | %-20s --> 2| %-20s --> 3 | %-20s --> 4 | %-20s --> 5 | %-20s --> 6 |\n","CREATE NEW TABLE","INSERT DATA","SEARCH KEY","DUMP TABLE","FILE MERGER","QUIT");
+    char *option_menu[] = {"INSERT DATA","SEARCH KEY","DUMP TABLE","FILE MERGER","QUIT"};
+
+    printf("\n");
+    for (opt=0; opt<5; opt++)
+        printf("\n|| %-20s --> %d ||",option_menu[opt],opt+1);
+    printf("\n\n");
 }
 
 int get_user_command() {
@@ -22,18 +28,6 @@ int get_user_command() {
     scanf("%d",&cmd);
 
     return cmd;
-}
-
-treemap create_new_table() {
-    unsigned char table_name[255];
-    treemap table1;
-
-    printf("Enter the table name : ");
-    scanf("%s", table_name);
-
-    table1 = new_tree_map();
-
-    return table1;
 }
 
 static int str_comp(const void * a, const void * b) {
@@ -62,16 +56,18 @@ void get_file_list(char *dirpath, char *file_list[], int *dir_len) {
     }
 }
 
-void handle_insert(treemap table) {
+int handle_insert(treemap table) {
     cellptr row_data_root;
-    int num_rows = 0;
-    int i = 0;
+    int num_rows;
+    int i;
     char key[FILE_KEY_LEN + 1];
 
+    num_rows = 0;
+    i = 0;
     printf("\n\nEnter number of rows : ");
     scanf("%d", &num_rows);
 
-    while (i < num_rows) {//
+    while (i < num_rows) {
         printf("\n\nRow %d ::>\n", ++i);
         printf("Enter key : ");
         scanf("%s",key);
@@ -79,11 +75,9 @@ void handle_insert(treemap table) {
         table = tree_put(table, key, row_data_root);
     }
 
-
-    printf("\n\n%s\n %d rows inserted :)\n%s\n\n", "+---------------------+", num_rows, "+---------------------+");
+    return i;
 }
 
-//////??????add indent to print while taking input
 void handle_search(treemap table, char *path) {
     int user_cmd = 0;
     int status;
@@ -92,45 +86,39 @@ void handle_search(treemap table, char *path) {
     char *file_list[15];
     int dir_len=0;
 
-    printf("\n\n| %-20s --> 7 | %-20s --> 8| %-20s --> 9 |\n","SEARCH KEY","SEARCH IN RANGE","GET ALL KEYS");
+    printf("\n\n|| %-20s --> 6 ||\n|| %-20s --> 7 ||\n|| %-20s --> 8 ||\n\n","SEARCH A KEY","SEARCH IN RANGE","GET ALL KEYS");
 
+    printf("\nselect search option ==>\n");
     user_cmd = get_user_command();
 
     switch (user_cmd) {
-        case 7:
-            printf("\nEnter search key : ");
+        case 6:
+            printf("\nEnter a 'search key' : ");
             scanf("%s", first_key);
-            status = tree_get(table, first_key);
 
-            if (status == EXIT_FAILURE) {
-                dir_len=0;
-                get_file_list(path, file_list, &dir_len);
+            dir_len = 0;
+            get_file_list(path, file_list, &dir_len);
 
-                while (--dir_len>=2) {
-                    disk_level_get(file_list[dir_len], first_key);
-                }
+            status = get_key(table, first_key, file_list, dir_len);
+
+            break;
+        case 7:
+            printf("\nEnter 'first key' : ");
+            scanf("%s", first_key);
+            printf("\nEnter 'last key' : ");
+            scanf("%s", last_key);
+
+            dir_len=0;
+            get_file_list(path, file_list, &dir_len);
+
+            if (get_in_range(table, first_key, last_key, file_list, dir_len)==EXIT_SUCCESS) {
+                printf("\n:)\n\n");
             }
             break;
         case 8:
-            printf("\nEnter first key : ");
-            scanf("%s", first_key);
-            printf("\nEnter last key : ");
-            scanf("%s", last_key);
-            tree_get_in_range(table->root,first_key,last_key);////////////////check or its okay?????
-
             dir_len=0;
             get_file_list(path, file_list, &dir_len);
-            while (--dir_len>=2) {
-                disk_level_get_in_range(file_list[dir_len], first_key, last_key);
-            }
-            break;
-        case 9:
-            tree_get_all(table->root);
-            dir_len=0;
-            get_file_list(path, file_list, &dir_len);
-            while (--dir_len>=2) {
-                disk_level_get_all(file_list[dir_len], "~");
-            }
+            get_all_keys(table, file_list, dir_len);
             break;
         default:
             printf("\n\n:( Invalid choice. Try again !\n\n");
@@ -145,38 +133,40 @@ void generate_file_name(char *file_name) {
     tc = localtime(&calender_time);
     strftime(file_name,15,"%Y%m%d%H%M%S",tc);
 
-    /*strcpy(file_name, (char*)(tc->tm_year + 1900));
-    strcat(file_name, (char*)tc->tm_mon);
-    strcat(file_name, (char*)tc->tm_mday);
-    strcat(file_name, (char*)tc->tm_hour);
-    strcat(file_name, (char*)tc->tm_min);
-    strcat(file_name, (char*)tc->tm_sec);*/
 }
 
-
-///?????add print to convey ops. finished
 void handle_table_dump(treemap table) {
     char file_name[15];
 
     generate_file_name(file_name);
 
-    disk_level_push(table, file_name);
+    if (table->root != NULL) {
+        if (disk_level_push(table, file_name) == EXIT_SUCCESS)
+            printf("\ntable dump successful! File created : %s\n", file_name);
+    } else
+        printf("\n\nTable empty! Nothing to dump.\n\n");
 }
 
 void handle_merge() {
     char *file_list[15];
     char *dirpath1 = "G:\\ClionProjects\\POCKETFILES\\";
     int dir_len;
-   //chaeck for less than 1 file avail
+
     get_file_list(dirpath1, file_list, &dir_len);
 
-    file_merger(file_list[2], file_list[3]);
+    //check for less than 1 file
+    if (dir_len < 4) {
+        printf("\n\nOops! It seems there's not enough files to merge.\n\n");
+    } else {
+        file_merger(file_list[2], file_list[3]);
+    }
 }
 
 void pocketdb_operations() {
     static int count = 0;
     int user_command = 0;
     int quit = 0;
+    int inserted_rows = 0;
     treemap table1 = NULL;
     char path[100] = "G:\\ClionProjects\\POCKETFILES\\";
 
@@ -184,39 +174,34 @@ void pocketdb_operations() {
 
     while (!quit) {
 
+        table1 = new_tree_map();
+        if (!table1) {
+            printf("\n\nError: new table was not created !\n\n");
+        }
+
         user_command = get_user_command();
-        //check for the first time input
-        if (count == 0 && user_command != 1 && user_command != 6) {
-            printf("\n\nOops! create a table first.");
-        } else {
-            count = 1;
-            switch (user_command) {
-                case 1:
-                    table1 = create_new_table();
-                    if (!table1) {
-                        printf("\n\nError: new table was not created !\n\n");
-                    } else {
-                        printf("\n\nTable created.\n\n");
-                    }
-                    break;
-                case 2:
-                    handle_insert(table1);
-                    break;
-                case 3:
-                    handle_search(table1, path);
-                    break;
-                case 4:
-                    handle_table_dump(table1);
-                    break;
-                case 5:
-                    handle_merge();
-                    break;
-                case 6:
-                    quit = 1;
-                    break;
-                default:
-                    printf("\n\n:( Invalid choice. Try again !\n\n");
-            }
+
+        switch (user_command) {
+
+            case 1:
+                inserted_rows = handle_insert(table1);
+                printf("\n\n%s\n %d rows inserted :)\n%s\n\n", "+---------------------+", inserted_rows, "+---------------------+");
+                break;
+            case 2:
+                handle_search(table1, path);
+                break;
+            case 3:
+                handle_table_dump(table1);
+                break;
+            case 4:
+                handle_merge();
+                break;
+            case 5:
+                quit = 1;
+                break;
+            default:
+                printf("\n\n:( Invalid choice. Try again !\n\n");
         }
     }
 }
+

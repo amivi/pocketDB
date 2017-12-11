@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "treemap.h"
 #include "output.h"
+#include "engine_manager.h"
+#include "disk_level.h"
 
 
 /*
@@ -80,62 +82,138 @@ node new_node(node root, char *key, byte_array value) {
     return root;
 }
 
+int get_all_keys(treemap tree, char *file_list[15], int dir_len) {
+    treemap all_key_tree = new_tree_map();
+    int index = 2;
+
+    printf("\n\nfetching all key-values ....\n\n");
+    all_key_tree = tree_get_all(tree->root, all_key_tree);
+
+    while (--dir_len >= 2) {
+        disk_level_get_all(file_list[index++], "~~~~~~~~~~", all_key_tree);
+    }
+
+    if (all_key_tree->size == 0) {
+        printf("\n\nNo keys. Table empty!");
+        return KEY_NOT_FOUND;////signal of no key found.
+    } else {
+        display_all_nodes(all_key_tree->root);
+        printf("\n\n%d keys found.\n\n",all_key_tree->size);
+        return EXIT_SUCCESS;
+    }
+}
+
 /*
  * outputs all the key-value mappings from treemap.
  */
-void tree_get_all(node root) {
+treemap tree_get_all(node root, treemap all_key_tree) {
+
+    char key[FILE_KEY_LEN+1];
 
     if(root!=NULL){
-        tree_get_all(root->left_child);
-        display_treemap_node(root->key, data_expand(root->value));
-        tree_get_all(root->right_child);
+        tree_get_all(root->left_child, all_key_tree);
+        sprintf(key, "%10s", root->key);
+        key[10] = '\0';
+        create_range_tree(all_key_tree, key, root->value);
+        tree_get_all(root->right_child, all_key_tree);
     }
+
+    return all_key_tree;
+}
+
+void display_all_nodes(node root) {
+    if(root!=NULL){
+        display_all_nodes(root->left_child);
+        display_treemap_node(root->key, data_expand(root->value));
+        display_all_nodes(root->right_child);
+    }
+}
+
+int get_in_range(treemap tree, char *first_key, char *last_key, char *file_list[15], int dir_len) {
+    treemap range_tree = new_tree_map();
+    int index=2;
+
+    //get in range from memory
+    printf("\n\nfetching all key-values in key range: '%s'  --  '%s'  ....\n\n",first_key, last_key);
+    range_tree = tree_get_in_range(tree->root, first_key, last_key, range_tree);
+
+    //get in range from disk
+    while (--dir_len >= 2)
+        disk_level_get_in_range(file_list[index++], first_key, last_key, range_tree);
+
+    if (range_tree->size == 0) {
+        printf("\nNo keys found between key range : '%s' to '%s'\n", first_key, last_key);
+        return KEY_NOT_FOUND;////signal of no key found.
+    } else {
+        display_all_nodes(range_tree->root);
+        printf("\n\n%d keys found.\n\n",range_tree->size);
+    }
+}
+
+void create_range_tree(treemap range_tree, char *key, byte_array value) {
+
+    if((range_tree->root = new_node(range_tree->root, key, value)))
+        ++range_tree->size;
 }
 
 /*
  * output all the key-value mappings from treemap within the specified range.
  */
-void tree_get_in_range(node root, char *first_key, char *last_key) {
+treemap tree_get_in_range(node root, char *first_key, char *last_key, treemap range_tree) {
+
+    char key[FILE_KEY_LEN+1];
 
     if(root!=NULL && (strcmp(root->key, first_key) >= 0) && (strcmp(root->key, last_key)<=0)){
-        tree_get_in_range(root->left_child, first_key, last_key);
-        display_treemap_node(root->key, data_expand(root->value));
-        tree_get_in_range(root->right_child, first_key, last_key);
+        tree_get_in_range(root->left_child, first_key, last_key, range_tree);
+        sprintf(key, "%10s", root->key);
+        key[10] = '\0';
+        create_range_tree(range_tree, key, root->value);
+        tree_get_in_range(root->right_child, first_key, last_key, range_tree);
     }
+
+    return range_tree;
 }
 
 /*
  * searches for a key in treemap.
  */
-int tree_get(treemap tree, char *key) {
+int get_key(treemap tree, char *key, char *file_list[15], int dir_len) {
 
     node tree_node = NULL;
     cellptr first_cell = NULL;
+    int status=-1;
 
-    if ((tree_node = get_node(tree->root, key))) {
-        printf("\n\n:) key found !\n");/////////////////
+    if ((tree_node = tree_get_node(tree->root, key))) {
+        printf("\n\n:) key found !\n");
         first_cell = data_expand(tree_node->value);
         display_treemap_node(key, first_cell);
+        printf("\n");
         return EXIT_SUCCESS;
-    } else {
-        printf("\n\n:( Key : %s not in treemap !\n", key);///////////////
-        return EXIT_FAILURE;
     }
+
+    while (--dir_len >= 2) {
+        status = disk_level_get(file_list[dir_len], key);
+        if (status == EXIT_SUCCESS)
+            return EXIT_SUCCESS;
+    }
+
+    printf("\n\n:( 'Key : %s' not in treemap !\n\n", key);
+    return EXIT_FAILURE;
 }
 
 /*
  * return the node containing the key from the treemap if it matches
  * the search key or returns null otherwise.
  */
-node get_node(node root, char *key){
+node tree_get_node(node root, char *key){
 
     if (root == NULL || (strcmp(key, root->key) == 0))
         return root;
 
     if (strcmp(key, root->key) < 0)
-        get_node(root->left_child, key);
+        tree_get_node(root->left_child, key);
     else
-        get_node(root->right_child, key);
+        tree_get_node(root->right_child, key);
 }
 
 /*

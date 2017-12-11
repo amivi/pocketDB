@@ -26,7 +26,7 @@ int disk_level_push(treemap tree, char *name){
         if((fp = fopen(fname, "wb"))) {
             get_in_order(tree->root, tree->size, fp);
             fclose(fp);
-            tree->root = NULL;//////////////////////////////////set null or not????
+            tree->root = NULL;
             tree->size = 0;
             return EXIT_SUCCESS;
         }
@@ -51,6 +51,7 @@ void handle_push(FILE *fp, char *key, byte_array data, int total_key) {
     data_len = (int) data[0];               //retrieve total length of byte-array
     ++key_count;                            //keep track of number of keys written
     static long int p1, p2;
+
     //check for the fresh file.
     if (file_size_counter == 0) {
         fprintf(fp, "%10s", key);
@@ -104,6 +105,10 @@ void handle_push(FILE *fp, char *key, byte_array data, int total_key) {
         fwrite(&key_count, FILE_NKEY_BYTES, 1, fp);
         //write file size.
         fwrite(&file_size_counter, FILE_SIZE_BYTES, 1, fp);
+
+        file_size_counter = 0;
+        bucket_size_counter = 0;
+        key_count = 0;
     }
 }
 
@@ -113,22 +118,18 @@ void handle_push(FILE *fp, char *key, byte_array data, int total_key) {
  * pointer 'fp'.
  */
 void get_in_order(node root, int size, FILE *fp){
-    static int i;   //iteration variable to keep track of the recursion stack.
 
     if (root != NULL) {
         get_in_order(root->left_child, size, fp);
-        if(++i>size)
-            printf("\nerror: recursion prob\n");
         handle_push(fp, root->key, root->value, size);
         get_in_order(root->right_child, size, fp);
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 
 int disk_level_get(char *fname, char *key){
     FILE *fp;
-    char *path= "G:\\ClionProjects\\POCKETFILES\\";
+    char path[100]= "G:\\ClionProjects\\POCKETFILES\\";
     char key_copy[11], current_key[11];
     char first_key[11], last_key[11];
     int num_keys;
@@ -136,7 +137,6 @@ int disk_level_get(char *fname, char *key){
     long int file_size, file_size_track = 0, posx;
     int bucket_size_track = 0, bucket_size;
     byte_array data;
-    cellptr first_cell;
 
     sprintf(key_copy, "%10s", key);
     key_copy[10] = '\0';
@@ -175,50 +175,49 @@ int disk_level_get(char *fname, char *key){
                             data = malloc(sizeof(char) * ((int)data_len));
                             fseek(fp, posx, SEEK_SET);
                             fread(data, (int)data_len, 1, fp);
-                            first_cell = data_expand(data);
-                            display_treemap_node(key, first_cell);
+                            display_treemap_node(key, data_expand(data));
+                            printf("\n");
                             fclose(fp);
                             return (EXIT_SUCCESS);
 
                         } else if (strcmp(current_key, key_copy) > 0) {
-                            printf("\nkey: %s not present\n", key_copy);
                             fclose(fp);
-                            return (2);/////exit code
+                            return KEY_NOT_FOUND;
                         }
                         fseek(fp, (int)data_len - 1, SEEK_CUR);
                         bucket_size_track += (int)data_len + FILE_KEY_LEN;
+                        file_size_track += (int)data_len + FILE_KEY_LEN;
                     }
-                    printf("\nkey: %s not present\n", key_copy);
                     fclose(fp);
-                    return (2);/////////////////
+                    return KEY_NOT_FOUND;
                 }
                 fseek(fp, bucket_size - BUCKET_HEADER_SIZE, SEEK_CUR);
                 file_size_track += bucket_size;
             }
 
         } else {
-            printf("\nresult : key not present\n");
             fclose(fp);
-            return (2);///////
+            return KEY_NOT_FOUND;
         }
+    } else {
+        printf("\n\nfile %s/%s can't be opened!\n\n", path, fname);
     }
 }
 
-int disk_level_get_all(char *fname, char flag_key[11]){
+int disk_level_get_all(char *fname, char flag_key[11], treemap range_tree){
     FILE *fp;
     char path[100]= "G:\\ClionProjects\\POCKETFILES\\";
-    char current_key[11];
     char key[11];
     int num_keys;
     uint8_t data_len;
     int key_count=0;
     byte_array data;
-    cellptr first_cell;
     long int posx;
 
     strcat(path, fname);
     fp = fopen(path, "rb");
 
+    key[0] = 0;
     if (fp) {
         fseek(fp, FILE_KR_BYTES, SEEK_SET);
         fread(&num_keys, FILE_NKEY_BYTES, 1, fp);
@@ -231,8 +230,7 @@ int disk_level_get_all(char *fname, char flag_key[11]){
             data = malloc(sizeof(char) * ((int) data_len));
             fseek(fp, posx, SEEK_SET);
             fread(data, (int) data_len, 1, fp);
-            first_cell = data_expand(data);
-            display_treemap_node(key, first_cell);
+            create_range_tree(range_tree, key, data);
 
             if (key_count % BUCKET_KEY_LIMIT == 0)
                 fseek(fp, BUCKET_HEADER_SIZE, SEEK_CUR);
@@ -246,7 +244,7 @@ int disk_level_get_all(char *fname, char flag_key[11]){
     }
 }
 
-int disk_level_get_in_range(char *fname, char *fkey, char *lkey){
+int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_tree){//////addedrange tree in arg
     FILE *fp;
     char path[100] = "G:\\ClionProjects\\POCKETFILES\\";
     char fkey_copy[11], current_key[11], lkey_copy[11];
@@ -256,7 +254,6 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey){
     long int file_size, file_size_track = 0, posx;
     int bucket_size_track = 0, bucket_size;
     byte_array data;
-    cellptr first_cell;
 
     sprintf(fkey_copy, "%10s", fkey);
     fkey_copy[10] = '\0';
@@ -292,12 +289,21 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey){
                     memcpy(current_key, first_key, 11);
 
                     while (strcmp(current_key, fkey_copy) < 0) {/////////////////////////
+                        posx = ftell(fp);
                         fread(current_key, FILE_KEY_LEN, 1, fp);
                         current_key[10] = '\0';
-                        fread(&data_len, 1, 1, fp);
-                        fseek(fp, (int)data_len - 1, SEEK_CUR);
-                        bucket_size_track += (int)data_len + FILE_KEY_LEN;
-                        file_size_track += (int)data_len + FILE_KEY_LEN;
+
+                        //when previous key was smaller than first key but
+                        //current key is greater than or equal to first key
+                        if (strcmp(current_key, fkey_copy) >= 0) {
+                            fseek(fp, posx, SEEK_SET);
+                            break;
+                        } else {
+                            fread(&data_len, 1, 1, fp);
+                            fseek(fp, (int) data_len - 1, SEEK_CUR);
+                            bucket_size_track += (int) data_len + FILE_KEY_LEN;
+                            file_size_track += (int) data_len + FILE_KEY_LEN;
+                        }
                     }
 
                     while ((strcmp(lkey_copy, current_key) >= 0) && (file_size_track < file_size)) {
@@ -311,8 +317,7 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey){
                             data = malloc(sizeof(char) * ((int) data_len));
                             fseek(fp, posx, SEEK_SET);
                             fread(data, (int) data_len, 1, fp);
-                            first_cell = data_expand(data);
-                            display_treemap_node(current_key, first_cell);
+                            create_range_tree(range_tree, current_key, data);
                             bucket_size_track += (int) data_len + FILE_KEY_LEN;
                             file_size_track += (int) data_len + FILE_KEY_LEN;
 
@@ -332,13 +337,12 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey){
 
         } else {
             if (strcmp(fkey_copy, first_key) < 0 && strcmp(lkey_copy, first_key) >= 0) {
-                disk_level_get_all(fname, lkey_copy);
+                disk_level_get_all(fname, lkey_copy, range_tree);
                 fclose(fp);
                 return EXIT_SUCCESS;
             } else {
-                printf("\nresult : key not present\n");
                 fclose(fp);
-                return (2);///////
+                return KEY_NOT_FOUND;
             }
         }
     }

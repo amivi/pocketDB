@@ -9,13 +9,12 @@
 cellptr data_expand(byte_array val){
 
     int i=1;
-    int data_len; //chk
     cellptr new_cell = NULL;
     cellptr first_cell = NULL;
     char temp_array[255];
 
-    data_len = val[0];
-    while(i < val[0]) {///////
+    //val[0] contains the length of the data in a byte array
+    while(i < val[0]) {
 
         new_cell = malloc(sizeof(CellData));
         if (new_cell == NULL) {
@@ -25,7 +24,7 @@ cellptr data_expand(byte_array val){
 
         new_cell->dt = (uint8_t) *(val+i++);
         new_cell->cell_name_len = (uint8_t ) *(val+i++);
-        strncpy(temp_array, (char *) (val + i), new_cell->cell_name_len);//////////////////////////
+        strncpy(temp_array, (char *) (val + i), new_cell->cell_name_len);
         temp_array[new_cell->cell_name_len] = '\0';
         new_cell->cell_name = strdup(temp_array);
         i = i + new_cell->cell_name_len;
@@ -48,7 +47,7 @@ cellptr data_expand(byte_array val){
             default:
                 printf("\a error : data_expand!");
         }
-
+        new_cell->next_cell=NULL;
         first_cell = linked_list(first_cell, new_cell);
         new_cell = NULL;
         free(new_cell);

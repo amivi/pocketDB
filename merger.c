@@ -32,14 +32,18 @@ void file_merger(char *fname_old1, char *fname_old2) {
     strcat(path_orig3, fname_new);
 
     //opening existing files
+    printf("\n\nopening older file from  : %s",path_orig1);
     fp1 = fopen(path_orig1, "rb");
+    printf("\nopening latest file from : %s",path_orig2);
     fp2 = fopen(path_orig2, "rb");
 
     //new file to write merged data
     fp3 = fopen(path_orig3, "wb");
+    printf("\n\ncreated new merge file at location : %s",path_orig3);
 
     //read all key-values
     get_file_data(fp1, fp2, fp3);
+    printf("\nfilled merge with merged data.");
 
     fclose(fp1);
     fclose(fp2);
@@ -48,13 +52,18 @@ void file_merger(char *fname_old1, char *fname_old2) {
     strcat(path_backup1, fname_old1);
     strcat(path_backup2, fname_old2);
     strcat(path_orig_new, fname_new_copy);
+
+
     rename(path_orig1, path_backup1);
     rename(path_orig2, path_backup2);
+    printf("\n\nmoving original files.\nlocation : %s\nlocation : %s\n",path_backup1,path_backup2);
+
     rename(path_orig3, path_orig_new);
+    printf("\nrenaming %s to %s\n",path_orig3,path_orig_new);
 
     //remove((path_orig,fname_old1));
 
-    printf("\n\nfile merge complete\n\n");
+    printf("\nfile merge complete.\n\n");
 }
 
 void get_file_data(FILE *fp1, FILE *fp2, FILE *fp3)  {

@@ -23,7 +23,7 @@ cellptr row_input() {
     char *nameval[] = {"AJAY", "VIJAY", "MINAL"};
     char *rollval[] = {"89.9", "80.09", "91.99"};
     char *dtval[] = {"S", "S", "F"};
-    static int j;////////////
+    static int j;////
     //temporary variables for taking the user inputs and
     //some required value calculation
     int number_of_cols, i=0;
@@ -33,7 +33,7 @@ cellptr row_input() {
     cellptr first_cell = NULL;
 
     printf("\nEnter number of columns : ");
-    sscanf("3","%d", &number_of_cols);//////////
+    sscanf("3","%d", &number_of_cols);////
     printf("%d", 3);
 
     while (i++ < number_of_cols) {
@@ -42,10 +42,10 @@ cellptr row_input() {
         printf("\nColumn %d :::",i-1);
         printf("\nSupported data types : INT(I), FLOAT(F), STRING(S)\n");
         printf("DataType : ");
-        sscanf(dtval[i-1],"%s", dt); /////////////
+        sscanf(dtval[i-1],"%s", dt); ////
         printf("%s\n", dtval[i-1]);
         printf("Cell_Name : ");
-        sscanf(cellnames[i-1],"%s", cellname);////////////
+        sscanf(cellnames[i-1],"%s", cellname);////
         printf("%s\n", cellnames[i-1]);
 
         //strdup returns the char pointer to the string
@@ -133,7 +133,7 @@ cellptr linked_list(cellptr first_cell, cellptr new_cell) {
  */
 unsigned int row_length(cellptr first_cell) {
 
-    unsigned int row_len = 1;////////////////////////////////1
+    unsigned int row_len = 1;
     cellptr rootc = first_cell;
 
     while (rootc) {
@@ -181,7 +181,7 @@ unsigned char *data_compact(cellptr first_cell) {
     }
 
     //iteration variable to store the length iterated
-    i = 1;/////////////////////////////////////////////////////////////////2
+    i = 1;
 
     //until end of the linked list is reached
     //and iteration var is smaller than data length
@@ -205,10 +205,9 @@ unsigned char *data_compact(cellptr first_cell) {
                 printf("\aunknown error : data_compact !");
         }
         i += rootc->val_len;
-        //++cols;
         rootc = rootc->next_cell;
     }
-    *(data_ptr + 0) = (uint8_t) data_len;////////
+    *(data_ptr + 0) = (uint8_t) data_len;
 
     return (unsigned char*) data_ptr;
 }
