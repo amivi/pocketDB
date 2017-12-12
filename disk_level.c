@@ -7,7 +7,10 @@
 #include <string.h>
 #include "disk_level.h"
 #include "output.h"
+#include "path.h"
 
+
+//#define POCKETFILES_PATH NULL
 
 /*
  * check if the file with given 'fname' already exists; if not
@@ -17,7 +20,7 @@
 int disk_level_push(treemap tree, char *name){
 
     FILE *fp;
-    char *path = "G:\\ClionProjects\\POCKETFILES\\";
+    char *path = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
     char *fname = malloc(strlen(name)+strlen(path)+1);
     strcpy(fname, path);
     strcat(fname, name);
@@ -129,7 +132,7 @@ void get_in_order(node root, int size, FILE *fp){
 
 int disk_level_get(char *fname, char *key){
     FILE *fp;
-    char path[100]= "G:\\ClionProjects\\POCKETFILES\\";
+    char path[100]= POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
     char key_copy[11], current_key[11];
     char first_key[11], last_key[11];
     int num_keys;
@@ -206,7 +209,7 @@ int disk_level_get(char *fname, char *key){
 
 int disk_level_get_all(char *fname, char flag_key[11], treemap range_tree){
     FILE *fp;
-    char path[100]= "G:\\ClionProjects\\POCKETFILES\\";
+    char path[100]= POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
     char key[11];
     int num_keys;
     uint8_t data_len;
@@ -246,7 +249,7 @@ int disk_level_get_all(char *fname, char flag_key[11], treemap range_tree){
 
 int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_tree){//////addedrange tree in arg
     FILE *fp;
-    char path[100] = "G:\\ClionProjects\\POCKETFILES\\";
+    char path[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
     char fkey_copy[11], current_key[11], lkey_copy[11];
     char first_key[11], last_key[11];
     int num_keys;

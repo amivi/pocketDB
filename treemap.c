@@ -147,6 +147,7 @@ int get_in_range(treemap tree, char *first_key, char *last_key, char *file_list[
     } else {
         display_all_nodes(range_tree->root);
         printf("\n\n%d keys found.\n\n",range_tree->size);
+        return EXIT_SUCCESS;
     }
 }
 
@@ -214,6 +215,8 @@ node tree_get_node(node root, char *key){
         tree_get_node(root->left_child, key);
     else
         tree_get_node(root->right_child, key);
+
+    return root;
 }
 
 /*

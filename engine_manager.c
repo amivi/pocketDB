@@ -4,11 +4,11 @@
 #include "merger.h"
 #include "treemap.h"
 #include "disk_level.h"
+#include "path.h"
 #include <time.h>
 #include <string.h>
 #include <dirent.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 void screen_initialize() {
     int opt;
@@ -149,7 +149,7 @@ void handle_table_dump(treemap table) {
 
 void handle_merge() {
     char *file_list[15];
-    char *dirpath1 = "G:\\ClionProjects\\POCKETFILES\\";
+    char *dirpath1 = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
     int dir_len;
 
     get_file_list(dirpath1, file_list, &dir_len);
@@ -163,18 +163,18 @@ void handle_merge() {
 }
 
 void pocketdb_operations() {
-    static int count = 0;
+
     int user_command = 0;
     int quit = 0;
     int inserted_rows = 0;
     treemap table1 = NULL;
-    char path[100] = "G:\\ClionProjects\\POCKETFILES\\";
+    char path[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
 
     screen_initialize();
+    table1 = new_tree_map();
 
     while (!quit) {
 
-        table1 = new_tree_map();
         if (!table1) {
             printf("\n\nError: new table was not created !\n\n");
         }

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "merger.h"
+#include "path.h"
 
 
 void file_merger(char *fname_old1, char *fname_old2) {
@@ -14,14 +15,14 @@ void file_merger(char *fname_old1, char *fname_old2) {
     FILE *fp1;
     FILE *fp2;
     FILE *fp3;
-    char path_orig1[100] = "G:\\ClionProjects\\POCKETFILES\\";
-    char path_orig2[100] = "G:\\ClionProjects\\POCKETFILES\\";
-    char path_orig3[100] = "G:\\ClionProjects\\POCKETFILES\\";
-    char path_orig_new[100] = "G:\\ClionProjects\\POCKETFILES\\";
+    char path_orig1[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char path_orig2[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char path_orig3[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char path_orig_new[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
     char fname_new_copy[15];
     char fname_new[19];
-    char path_backup1[100] = "G:\\ClionProjects\\POCKETFILES_BACKUP\\";
-    char path_backup2[100] = "G:\\ClionProjects\\POCKETFILES_BACKUP\\";
+    char path_backup1[100] = POCKETFILES_PATH_BACKUP;//"G:\\ClionProjects\\POCKETFILES_BACKUP\\";
+    char path_backup2[100] = POCKETFILES_PATH_BACKUP;//"G:\\ClionProjects\\POCKETFILES_BACKUP\\";
 
     printf("\n\nfile merge start....");
     strcpy(fname_new, fname_old2);//////////
