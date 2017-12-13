@@ -45,8 +45,8 @@ treemap tree_put(treemap tree, char *key, cellptr row_data) {
 
     //new node adds a node with key-and the transformed value(byte array)
     //to the tree
-    if((tree->root = new_node(tree->root, key, value)))
-        ++tree->size;
+    if((tree->root = new_node(tree->root, key, value, &(tree->size))))
+        ;
 
     return tree;
 }
@@ -58,7 +58,7 @@ treemap tree_put(treemap tree, char *key, cellptr row_data) {
  * an already existing key is provided & reutrns the
  * pointer to the root node of new tree after node insertion
  */
-node new_node(node root, char *key, byte_array value) {
+node new_node(node root, char *key, byte_array value, int *size) {
 
     //cond variable stores the comparision status value
     //between provided key and key of a node
@@ -72,12 +72,13 @@ node new_node(node root, char *key, byte_array value) {
         root->value = (byte_array) strdup((char*)value);
         root->left_child = NULL;
         root->right_child = NULL;
+        *size = *size + 1;
     } else if((cond=strcmp(key, root->key)) == 0)
             root->value = (byte_array) strdup((char*)value);
     else if(cond < 0)
-        root->left_child = new_node(root->left_child, key, value);
+        root->left_child = new_node(root->left_child, key, value, size);
     else
-        root->right_child = new_node(root->right_child, key, value);
+        root->right_child = new_node(root->right_child, key, value, size);
 
     return root;
 }
@@ -94,7 +95,7 @@ int get_all_keys(treemap tree, char *file_list[15], int dir_len) {
     }
 
     if (all_key_tree->size == 0) {
-        printf("\n\nNo keys. Table empty!");
+        printf("\n\nNo keys. Table empty!\n");
         return KEY_NOT_FOUND;////signal of no key found.
     } else {
         display_all_nodes(all_key_tree->root);
@@ -153,8 +154,8 @@ int get_in_range(treemap tree, char *first_key, char *last_key, char *file_list[
 
 void create_range_tree(treemap range_tree, char *key, byte_array value) {
 
-    if((range_tree->root = new_node(range_tree->root, key, value)))
-        ++range_tree->size;
+    if((range_tree->root = new_node(range_tree->root, key, value, &(range_tree->size))))
+        ;
 }
 
 /*
@@ -162,13 +163,15 @@ void create_range_tree(treemap range_tree, char *key, byte_array value) {
  */
 treemap tree_get_in_range(node root, char *first_key, char *last_key, treemap range_tree) {
 
-    char key[FILE_KEY_LEN+1];
+    //char key[FILE_KEY_LEN+1];
 
-    if(root!=NULL && (strcmp(root->key, first_key) >= 0) && (strcmp(root->key, last_key)<=0)){
+    if(root!=NULL) {
         tree_get_in_range(root->left_child, first_key, last_key, range_tree);
-        sprintf(key, "%10s", root->key);
-        key[10] = '\0';
-        create_range_tree(range_tree, key, root->value);
+        //sprintf(key, "%10s", root->key);
+        //key[10] = '\0';
+        if ((strcmp(root->key, first_key) >= 0) && (strcmp(root->key, last_key)<=0)){
+            create_range_tree(range_tree, root->key, root->value);
+        }
         tree_get_in_range(root->right_child, first_key, last_key, range_tree);
     }
 
@@ -216,7 +219,6 @@ node tree_get_node(node root, char *key){
     else
         tree_get_node(root->right_child, key);
 
-    return root;
 }
 
 /*

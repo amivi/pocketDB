@@ -37,7 +37,7 @@ typedef struct TreeMap {
 
 treemap new_tree_map();
 treemap tree_put(treemap tree, char *key, cellptr row_data);
-node new_node(node root, char *key, byte_array value);
+node new_node(node root, char *key, byte_array value, int *size);
 treemap tree_get_in_range(node tree, char *fkey, char *lkey, treemap range_tree);
 int get_in_range(treemap tree, char *fkey, char *lkey, char *file_list[15], int dir_len);
 void create_range_tree(treemap range_tree, char *key, byte_array value);

@@ -11,7 +11,7 @@
 #elif defined( __APPLE__ )
     #define POCKETFILES_PATH "../../POCKETFILES/"
     #define POCKETFILES_PATH_BACKUP "../../POCKETFILES_BACKUP/"
-#elif defined( _WIN64 )
+#elif defined( _WIN64 ) || defined(_WINDOWS_)
     #define POCKETFILES_PATH "..\\..\\POCKETFILES\\"
     #define POCKETFILES_PATH_BACKUP "..\\..\\POCKETFILES_BACKUP\\"
 #else

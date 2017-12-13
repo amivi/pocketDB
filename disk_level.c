@@ -69,7 +69,7 @@ void handle_push(FILE *fp, char *key, byte_array data, int total_key) {
         p2 = ftell(fp);
         bucket_size_counter += BUCKET_HEADER_SIZE;
         file_size_counter += BUCKET_HEADER_SIZE;
-        fseek(fp, (FILE_HEADER_SIZE + BUCKET_HEADER_SIZE), SEEK_SET);
+        fseek(fp, file_size_counter, SEEK_SET);///////////
     }
 
     //in every case write key-data pair to the file.
@@ -87,7 +87,7 @@ void handle_push(FILE *fp, char *key, byte_array data, int total_key) {
         //write bucket size.
         fwrite(&bucket_size_counter, BUCKET_SIZE_BYTES, 1, fp);
         //goto the last position in the current file.
-        fseek(fp, (bucket_size_counter - FILE_HEADER_SIZE), SEEK_CUR);
+        fseek(fp, file_size_counter, SEEK_SET);//////////////////////XXXXXXXX
         //set bucket size counter to 0.
         bucket_size_counter = 0;
     }
@@ -112,6 +112,7 @@ void handle_push(FILE *fp, char *key, byte_array data, int total_key) {
         file_size_counter = 0;
         bucket_size_counter = 0;
         key_count = 0;
+        p1 = p2 = 0;
     }
 }
 
@@ -141,8 +142,8 @@ int disk_level_get(char *fname, char *key){
     int bucket_size_track = 0, bucket_size;
     byte_array data;
 
-    sprintf(key_copy, "%10s", key);
-    key_copy[10] = '\0';
+    //sprintf(key_copy, "%10s", key);
+    //key_copy[10] = '\0';
 
     strcat(path, fname);
     fp = fopen(path, "rb");
@@ -156,7 +157,7 @@ int disk_level_get(char *fname, char *key){
         last_key[10] = '\0';
         file_size_track += FILE_HEADER_SIZE;
 
-        if (strcmp(key_copy, first_key) >= 0 && strcmp(key_copy, last_key) <= 0) {
+        if (strcmp(key, first_key) >= 0 && strcmp(key, last_key) <= 0) {
 
             while (file_size_track != file_size) {
 
@@ -168,13 +169,13 @@ int disk_level_get(char *fname, char *key){
 
                 bucket_size_track += BUCKET_HEADER_SIZE;
 
-                if (strcmp(key_copy, first_key) >= 0 && strcmp(key_copy, last_key) <= 0) {
+                if (strcmp(key, first_key) >= 0 && strcmp(key, last_key) <= 0) {
                     while (bucket_size_track != bucket_size) {
                         fread(current_key, FILE_KEY_LEN, 1, fp);
                         current_key[10] = '\0';
                         posx = ftell(fp);
                         fread(&data_len, 1, 1,fp);
-                        if (strcmp(current_key, key_copy) == 0) {
+                        if (strcmp(current_key, key) == 0) {
                             data = malloc(sizeof(char) * ((int)data_len));
                             fseek(fp, posx, SEEK_SET);
                             fread(data, (int)data_len, 1, fp);
@@ -183,7 +184,7 @@ int disk_level_get(char *fname, char *key){
                             fclose(fp);
                             return (EXIT_SUCCESS);
 
-                        } else if (strcmp(current_key, key_copy) > 0) {
+                        } else if (strcmp(current_key, key) > 0) {
                             fclose(fp);
                             return KEY_NOT_FOUND;
                         }
@@ -197,6 +198,7 @@ int disk_level_get(char *fname, char *key){
                 fseek(fp, bucket_size - BUCKET_HEADER_SIZE, SEEK_CUR);
                 file_size_track += bucket_size;
             }
+            return KEY_NOT_FOUND;
 
         } else {
             fclose(fp);
@@ -258,10 +260,10 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_t
     int bucket_size_track = 0, bucket_size;
     byte_array data;
 
-    sprintf(fkey_copy, "%10s", fkey);
+    /*sprintf(fkey_copy, "%10s", fkey);
     fkey_copy[10] = '\0';
     sprintf(lkey_copy, "%10s", lkey);
-    lkey_copy[10] = '\0';
+    lkey_copy[10] = '\0';*/
 
     strcat(path, fname);
     fp = fopen(path, "rb");
@@ -275,7 +277,7 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_t
         last_key[10] = '\0';
         file_size_track += FILE_HEADER_SIZE;
 
-        if ( strcmp(fkey_copy, first_key) >= 0 && strcmp(fkey_copy, last_key) <= 0) {
+        if ( strcmp(fkey, first_key) >= 0 && strcmp(fkey, last_key) <= 0) {
 
             while (file_size_track != file_size) {
                 fread(first_key, FILE_KEY_LEN, 1, fp);
@@ -286,19 +288,19 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_t
 
                 bucket_size_track = BUCKET_HEADER_SIZE;
 
-                if (strcmp(fkey_copy, first_key) >= 0 && strcmp(fkey_copy, last_key) <= 0) {
+                if (strcmp(fkey, first_key) >= 0 && strcmp(fkey, last_key) <= 0) {
 
                     file_size_track += BUCKET_HEADER_SIZE;
                     memcpy(current_key, first_key, 11);
 
-                    while (strcmp(current_key, fkey_copy) < 0) {/////////////////////////
+                    while (strcmp(current_key, fkey) < 0) {/////////////////////////
                         posx = ftell(fp);
                         fread(current_key, FILE_KEY_LEN, 1, fp);
                         current_key[10] = '\0';
 
                         //when previous key was smaller than first key but
                         //current key is greater than or equal to first key
-                        if (strcmp(current_key, fkey_copy) >= 0) {
+                        if (strcmp(current_key, fkey) >= 0) {
                             fseek(fp, posx, SEEK_SET);
                             break;
                         } else {
@@ -309,11 +311,11 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_t
                         }
                     }
 
-                    while ((strcmp(lkey_copy, current_key) >= 0) && (file_size_track < file_size)) {
+                    while ((strcmp(lkey, current_key) >= 0) && (file_size_track < file_size)) {
 
                         fread(current_key, FILE_KEY_LEN, 1, fp);
 
-                        if (strcmp(lkey_copy, current_key) >= 0) {
+                        if (strcmp(lkey, current_key) >= 0) {
                             current_key[10] = '\0';
                             posx = ftell(fp);
                             fread(&data_len, 1, 1, fp);
@@ -339,8 +341,8 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_t
             }
 
         } else {
-            if (strcmp(fkey_copy, first_key) < 0 && strcmp(lkey_copy, first_key) >= 0) {
-                disk_level_get_all(fname, lkey_copy, range_tree);
+            if (strcmp(fkey, first_key) < 0 && strcmp(lkey, first_key) >= 0) {
+                disk_level_get_all(fname, lkey, range_tree);
                 fclose(fp);
                 return EXIT_SUCCESS;
             } else {
