@@ -61,6 +61,7 @@ int handle_insert(treemap table) {
     int num_rows;
     int i;
     char key[FILE_KEY_LEN + 1];
+    char key_copy[FILE_KEY_LEN+1];
 
     num_rows = 0;
     i = 0;
@@ -71,8 +72,10 @@ int handle_insert(treemap table) {
         printf("\n\nRow %d ::>\n", ++i);
         printf("Enter key : ");
         scanf("%s",key);
+        sprintf(key_copy,"%10s",key);
+        key[10] = '\0';
         row_data_root = row_input();
-        table = tree_put(table, key, row_data_root);
+        table = tree_put(table, key_copy, row_data_root);
     }
 
     return i;
@@ -82,7 +85,9 @@ void handle_search(treemap table, char *path) {
     int user_cmd = 0;
     int status;
     char first_key[FILE_KEY_LEN+1];
+    char first_key_copy[FILE_KEY_LEN+1];
     char last_key[FILE_KEY_LEN+1];
+    char last_key_copy[FILE_KEY_LEN+1];
     char *file_list[15];
     int dir_len=0;
 
@@ -99,7 +104,10 @@ void handle_search(treemap table, char *path) {
             dir_len = 0;
             get_file_list(path, file_list, &dir_len);
 
-            status = get_key(table, first_key, file_list, dir_len);
+            sprintf(first_key_copy, "%10s", first_key);
+            first_key_copy[10] = '\0';
+
+            status = get_key(table, first_key_copy, file_list, dir_len);
 
             break;
         case 7:
@@ -108,10 +116,16 @@ void handle_search(treemap table, char *path) {
             printf("\nEnter 'last key' : ");
             scanf("%s", last_key);
 
+            sprintf(first_key_copy, "%10s", first_key);
+            first_key[10] = '\0';
+            sprintf(last_key_copy, "%10s", last_key);
+            last_key[10] = '\0';
+
             dir_len=0;
+
             get_file_list(path, file_list, &dir_len);
 
-            if (get_in_range(table, first_key, last_key, file_list, dir_len)==EXIT_SUCCESS) {
+            if (get_in_range(table, first_key_copy, last_key_copy, file_list, dir_len)==EXIT_SUCCESS) {
                 printf("\n:)\n\n");
             }
             break;

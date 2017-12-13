@@ -8,6 +8,7 @@
 #include <string.h>
 #include "merger.h"
 #include "path.h"
+#include "disk_level.h"
 
 
 void file_merger(char *fname_old1, char *fname_old2) {
