@@ -15,7 +15,7 @@
 #define BUCKET_HEADER_SIZE (BUCKET_KR_BYTES + BUCKET_SIZE_BYTES)
 #define BUCKET_KR_BYTES 20
 #define BUCKET_SIZE_BYTES sizeof(int)
-#define BUCKET_KEY_LIMIT 10
+#define BUCKET_KEY_LIMIT 25
 
 int disk_level_push(treemap tree, char *name);
 void handle_push(FILE *fp,char *key, byte_array data, int size);

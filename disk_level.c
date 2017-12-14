@@ -20,7 +20,7 @@
 int disk_level_push(treemap tree, char *name){
 
     FILE *fp;
-    char *path = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char *path = POCKETFILES_PATH;
     char *fname = malloc(strlen(name)+strlen(path)+1);
     strcpy(fname, path);
     strcat(fname, name);
@@ -133,17 +133,14 @@ void get_in_order(node root, int size, FILE *fp){
 
 int disk_level_get(char *fname, char *key){
     FILE *fp;
-    char path[100]= POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
-    char key_copy[11], current_key[11];
+    char path[100]= POCKETFILES_PATH;
+    char current_key[11];
     char first_key[11], last_key[11];
     int num_keys;
     uint8_t data_len;
     long int file_size, file_size_track = 0, posx;
     int bucket_size_track = 0, bucket_size;
     byte_array data;
-
-    //sprintf(key_copy, "%10s", key);
-    //key_copy[10] = '\0';
 
     strcat(path, fname);
     fp = fopen(path, "rb");
@@ -206,12 +203,13 @@ int disk_level_get(char *fname, char *key){
         }
     } else {
         printf("\n\nfile %s/%s can't be opened!\n\n", path, fname);
+        return EXIT_FAILURE;
     }
 }
 
 int disk_level_get_all(char *fname, char flag_key[11], treemap range_tree){
     FILE *fp;
-    char path[100]= POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char path[100]= POCKETFILES_PATH;
     char key[11];
     int num_keys;
     uint8_t data_len;
@@ -249,21 +247,16 @@ int disk_level_get_all(char *fname, char flag_key[11], treemap range_tree){
     }
 }
 
-int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_tree){//////addedrange tree in arg
+int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_tree){
     FILE *fp;
-    char path[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
-    char fkey_copy[11], current_key[11], lkey_copy[11];
+    char path[100] = POCKETFILES_PATH;
+    char current_key[11];
     char first_key[11], last_key[11];
     int num_keys;
     uint8_t data_len;
     long int file_size, file_size_track = 0, posx;
     int bucket_size_track = 0, bucket_size;
     byte_array data;
-
-    /*sprintf(fkey_copy, "%10s", fkey);
-    fkey_copy[10] = '\0';
-    sprintf(lkey_copy, "%10s", lkey);
-    lkey_copy[10] = '\0';*/
 
     strcat(path, fname);
     fp = fopen(path, "rb");
@@ -293,7 +286,7 @@ int disk_level_get_in_range(char *fname, char *fkey, char *lkey, treemap range_t
                     file_size_track += BUCKET_HEADER_SIZE;
                     memcpy(current_key, first_key, 11);
 
-                    while (strcmp(current_key, fkey) < 0) {/////////////////////////
+                    while (strcmp(current_key, fkey) < 0) {
                         posx = ftell(fp);
                         fread(current_key, FILE_KEY_LEN, 1, fp);
                         current_key[10] = '\0';

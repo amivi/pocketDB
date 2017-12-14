@@ -9,6 +9,7 @@
 #include "output.h"
 #include "engine_manager.h"
 #include "disk_level.h"
+#include "path.h"
 
 
 /*
@@ -85,11 +86,11 @@ node new_node(node root, char *key, byte_array value, int *size) {
 
 int get_all_keys(treemap tree, char *file_list[15], int dir_len) {
     treemap all_key_tree = new_tree_map();
-    int index = 2;
+    int index = START_INDEX;//2
 
     printf("\n\nfetching all key-values ....\n\n");
 
-    while (--dir_len >= 2) {
+    while (--dir_len >= START_INDEX) {
         disk_level_get_all(file_list[index++], FLAG_KEY, all_key_tree);
     }
 
@@ -133,12 +134,12 @@ void display_all_nodes(node root) {
 
 int get_in_range(treemap tree, char *first_key, char *last_key, char *file_list[15], int dir_len) {
     treemap range_tree = new_tree_map();
-    int index=2;
+    int index=START_INDEX;//2;
 
     printf("\n\nfetching all key-values in key range: '%s'  --  '%s'  ....\n\n",first_key, last_key);
 
     //get in range from disk
-    while (--dir_len >= 2)
+    while (--dir_len >= START_INDEX)//2
         disk_level_get_in_range(file_list[index++], first_key, last_key, range_tree);
 
     //get in range from memory
@@ -169,8 +170,7 @@ treemap tree_get_in_range(node root, char *first_key, char *last_key, treemap ra
 
     if(root!=NULL) {
         tree_get_in_range(root->left_child, first_key, last_key, range_tree);
-        //sprintf(key, "%10s", root->key);
-        //key[10] = '\0';
+
         if ((strcmp(root->key, first_key) >= 0) && (strcmp(root->key, last_key)<=0)){
             create_range_tree(range_tree, root->key, root->value);
         }
@@ -197,13 +197,13 @@ int get_key(treemap tree, char *key, char *file_list[15], int dir_len) {
         return EXIT_SUCCESS;
     }
 
-    while (--dir_len >= 2) {
+    while (--dir_len >= START_INDEX) {
         status = disk_level_get(file_list[dir_len], key);
         if (status == EXIT_SUCCESS)
             return EXIT_SUCCESS;
     }
 
-    printf("\n\n:( 'Key : %s' not in treemap !\n\n", key);
+    printf("\n\n:( 'Key : %s' not found!\n\n", key);
     return EXIT_FAILURE;
 }
 

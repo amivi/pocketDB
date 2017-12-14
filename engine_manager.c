@@ -73,7 +73,7 @@ int handle_insert(treemap table) {
         printf("Enter key : ");
         scanf("%s",key);
         sprintf(key_copy,"%10s",key);
-        key[10] = '\0';
+        key_copy[10] = '\0';/////////////////////
         row_data_root = row_input();
         table = tree_put(table, key_copy, row_data_root);
     }
@@ -123,6 +123,11 @@ void handle_search(treemap table, char *path) {
 
             dir_len=0;
 
+            if (strcmp(first_key_copy, last_key_copy) > 0) {
+                printf("\n\nInvalid key range. Please enter a valid key range.\n\n");
+                break;
+            }
+
             get_file_list(path, file_list, &dir_len);
 
             if (get_in_range(table, first_key_copy, last_key_copy, file_list, dir_len)==EXIT_SUCCESS) {
@@ -156,20 +161,20 @@ void handle_table_dump(treemap table) {
 
     if (table->root != NULL) {
         if (disk_level_push(table, file_name) == EXIT_SUCCESS)
-            printf("\ntable dump successful! File created : %s\n", file_name);
+            printf("\nTable dump successful! File created : %s\n", file_name);
     } else
         printf("\n\nTable empty! Nothing to dump.\n\n");
 }
 
 void handle_merge() {
     char *file_list[15];
-    char *dirpath1 = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char *dirpath1 = POCKETFILES_PATH;
     int dir_len;
 
     get_file_list(dirpath1, file_list, &dir_len);
 
     //check for less than 1 file
-    if (dir_len < 4) {
+    if (dir_len < MIN_DIR_LEN) {/////
         printf("\n\nOops! It seems there's not enough files to merge.\n\n");
     } else {
         file_merger(file_list[2], file_list[3]);
@@ -182,7 +187,7 @@ void pocketdb_operations() {
     int quit = 0;
     int inserted_rows = 0;
     treemap table1 = NULL;
-    char path[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char path[100] = POCKETFILES_PATH;
 
     screen_initialize();
     table1 = new_tree_map();

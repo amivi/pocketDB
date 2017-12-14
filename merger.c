@@ -16,14 +16,14 @@ void file_merger(char *fname_old1, char *fname_old2) {
     FILE *fp1;
     FILE *fp2;
     FILE *fp3;
-    char path_orig1[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
-    char path_orig2[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
-    char path_orig3[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
-    char path_orig_new[100] = POCKETFILES_PATH;//"G:\\ClionProjects\\POCKETFILES\\";
+    char path_orig1[100] = POCKETFILES_PATH;
+    char path_orig2[100] = POCKETFILES_PATH;
+    char path_orig3[100] = POCKETFILES_PATH;
+    char path_orig_new[100] = POCKETFILES_PATH;
     char fname_new_copy[15];
     char fname_new[19];
-    char path_backup1[100] = POCKETFILES_PATH_BACKUP;//"G:\\ClionProjects\\POCKETFILES_BACKUP\\";
-    char path_backup2[100] = POCKETFILES_PATH_BACKUP;//"G:\\ClionProjects\\POCKETFILES_BACKUP\\";
+    char path_backup1[100] = POCKETFILES_PATH_BACKUP;
+    char path_backup2[100] = POCKETFILES_PATH_BACKUP;
 
     printf("\n\nfile merge start....");
     strcpy(fname_new, fname_old2);//////////
@@ -45,7 +45,7 @@ void file_merger(char *fname_old1, char *fname_old2) {
 
     //read all key-values
     get_file_data(fp1, fp2, fp3);
-    printf("\nfilled merge with merged data.");
+    printf("\nfilled merge file with merged data.");
 
     fclose(fp1);
     fclose(fp2);
@@ -62,8 +62,6 @@ void file_merger(char *fname_old1, char *fname_old2) {
 
     rename(path_orig3, path_orig_new);
     printf("\nrenaming %s to %s\n",path_orig3,path_orig_new);
-
-    //remove((path_orig,fname_old1));
 
     printf("\nfile merge complete.\n\n");
 }
