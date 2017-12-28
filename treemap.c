@@ -232,7 +232,21 @@ void display_treemap_node(char *key, cellptr first_cell) {
     printf("%-8s", key);
     while (first_cell != NULL) {
         printf("\nDataType\tCellName\tValue");
-        printf("\n%-12d",first_cell->dt);
+        //printf("\n%-12d",first_cell->dt);
+        switch (first_cell->dt) {
+            case INT :
+                printf("\n%-12s","INTEGER");
+                break;
+            case FLOAT :
+                printf("\n%-12s","FLOAT");
+                break;
+            case STRING :
+                printf("\n%-12s","STRING");
+                break;
+            default:
+                printf("program error");
+        }
+
         printf("%-12s", first_cell->cell_name);
         switch (first_cell->dt) {
             case INT :

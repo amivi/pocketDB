@@ -6,6 +6,7 @@
 #define POCKETDB_DISK_LEVEL_H
 
 #include "treemap.h"
+#include <stdio.h>
 
 #define FILE_HEADER_SIZE (FILE_KR_BYTES + FILE_NKEY_BYTES + FILE_SIZE_BYTES)
 #define FILE_KR_BYTES 20
